@@ -4,6 +4,8 @@ import {
   getFirestore,
   type DocumentSnapshot,
   type QueryDocumentSnapshot,
+  type Transaction,
+  type FieldValue as FieldValueType,
 } from "firebase-admin/firestore";
 import { logger } from "firebase-functions";
 import { setGlobalOptions } from "firebase-functions/v2";
@@ -89,7 +91,7 @@ export const createOrder = onCall(
       itemCount: items.length,
     });
 
-    return db.runTransaction(async (transaction) => {
+    return db.runTransaction(async (transaction: Transaction) => {
       const existingOrder = await transaction.get(orderRef);
       if (existingOrder.exists) {
         const existing = existingOrder.data() as Partial<Order>;
@@ -104,7 +106,7 @@ export const createOrder = onCall(
         readItem(snapshot, items[index].quantity),
       );
       const { items: orderItems, totalCents } = calculateOrderTotals(items, products);
-      const order: Omit<Order, "createdAt"> & { createdAt: FirebaseFirestore.FieldValue } = {
+      const order: Omit<Order, "createdAt"> & { createdAt: FieldValueType } = {
         buyer,
         items: orderItems.map(({ id, title, price, quantity, subtotal }) => ({
           id,
@@ -151,7 +153,7 @@ export const expirePendingOrders = onSchedule(
     let expiredCount = 0;
 
     for (const orderSnapshot of pendingOrders.docs) {
-      const expired = await db.runTransaction(async (transaction) => {
+      const expired = await db.runTransaction(async (transaction: Transaction) => {
         const currentOrder = await transaction.get(orderSnapshot.ref);
         if (!currentOrder.exists) return false;
         const order = currentOrder.data() as Partial<Order>;
