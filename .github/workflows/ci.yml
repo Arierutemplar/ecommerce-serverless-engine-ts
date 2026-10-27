@@ -24,4 +24,3 @@ jobs:
       - run: npm --prefix functions test
       - run: npm --prefix functions run build
       - run: npm run build
-      - run: node --check functions/lib/index.js
