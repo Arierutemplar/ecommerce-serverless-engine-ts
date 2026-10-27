@@ -20,5 +20,8 @@ jobs:
       - run: npm test
       - run: npm audit --omit=dev
       - run: npm --prefix functions audit --omit=dev
+      - run: npm --prefix functions run lint
+      - run: npm --prefix functions test
+      - run: npm --prefix functions run build
       - run: npm run build
-      - run: node --check functions/index.js
+      - run: node --check functions/lib/index.js
