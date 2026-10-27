@@ -102,8 +102,9 @@ export const createOrder = onCall(
       const snapshots = await Promise.all(
         itemRefs.map((itemRef) => transaction.get(itemRef)),
       );
-      const products = snapshots.map((snapshot, index) =>
-        readItem(snapshot, items[index].quantity),
+      const products = snapshots.map(
+        (snapshot: DocumentSnapshot, index: number) =>
+          readItem(snapshot, items[index].quantity),
       );
       const { items: orderItems, totalCents } = calculateOrderTotals(items, products);
       const order: Omit<Order, "createdAt"> & { createdAt: FieldValueType } = {
